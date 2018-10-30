@@ -1,0 +1,29 @@
+{
+    "name": "hellopeterlee/laravel-uploader",
+    "authors": [
+        {
+            "name": "peterlee",
+            "email": "peirenlei@163.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.5.9",
+        "intervention/image": "^2.4"
+    },
+
+    "autoload": {
+        "psr-4": {
+            "HelloPeterlee\\LaravelUploader\\": "src/LaravelUploader"
+        },
+        "files": ["src/LaravelUploader/helpers.php"]
+    },
+    "extra": {
+        "laravel": {
+            "providers": ["\\HelloPeterlee\\LaravelUploader\\UploadServiceProvider"],
+            "aliases": {
+                "LaravelUploader": "\\HelloPeterlee\\LaravelUploader\\LaravelUploader"
+            }
+        }
+    },
+    "license": "MIT"
+}
