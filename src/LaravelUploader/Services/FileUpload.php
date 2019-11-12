@@ -78,18 +78,23 @@ class FileUpload
             throw new Exception('Failed to store file.');
         }
 
+        $image = Image::make($this->filesystem->disk($disk)->path($path));
+        $width = $image->width();
+        $height = $image->height();
+
         $reduce_path = '';
         if ($max_width > 0) { //如果是图片需要压缩尺寸
             $reduceResult = $this->reduceSize($this->filesystem->disk($disk)->path($path), $max_width);
             $reduce_path = $dir . '/' . pathinfo($hashName, PATHINFO_FILENAME) . '.s' . '.' . pathinfo($hashName, PATHINFO_EXTENSION);
             $this->filesystem->disk($disk)->put($reduce_path, $reduceResult['data']); // 重新保存
-//            $width = $reduceResult['image']->width();
-//            $height = $reduceResult['image']->height();
-//            $size = $disk->size($path);
+            $width = $reduceResult['image']->width();
+            $height = $reduceResult['image']->height();
+            $size = $disk->size($path);
         }
 
         $data = [
             'success' => true,
+            'status' => 'success',
             'filename' => $hashName,
             'original_name' => $file->getClientOriginalName(),
             'mime' => $mime,
@@ -97,6 +102,8 @@ class FileUpload
             'storage_path' => $path,
             'relative_url' => str_replace(env('APP_URL'), '', Storage::disk($disk)->url($path)),
             'url' => Storage::disk($disk)->url($path),
+            'width' => $width,
+            'height' => $height,
         ];
 
         if ($want_dataURL) {
@@ -158,14 +165,25 @@ class FileUpload
 
         // 进行大小调整的操作
         $image->resize($max_width, null, function ($constraint) {
-
             // 设定宽度是 $max_width，高度等比例双方缩放
             $constraint->aspectRatio();
-
             // 防止裁图时图片尺寸变大
             $constraint->upsize();
         });
 
         return ['data' => $image->encode(pathinfo($image->basePath(), PATHINFO_EXTENSION)), 'image' => $image];
+    }
+
+    public function saveCropedImage($image, $disk, $dir, $hashName)
+    {
+        $dir = $this->formatDir($dir);
+        $imageData = $image->encode(pathinfo($image->basePath(), PATHINFO_EXTENSION));
+        $reduce_path = $dir . '/' . pathinfo($hashName, PATHINFO_FILENAME) . '.crop.' . pathinfo($hashName, PATHINFO_EXTENSION);
+        $this->filesystem->disk($disk)->put($reduce_path, $imageData);
+        return [
+            'url' => Storage::disk($disk)->url($reduce_path),
+            'storage_path' => $reduce_path,
+            'relative_url' => '/storage/' . $reduce_path
+        ];
     }
 }

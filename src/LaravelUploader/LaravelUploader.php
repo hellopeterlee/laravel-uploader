@@ -22,6 +22,10 @@ class LaravelUploader extends Facade
                 'uses' => '\HelloPeterlee\LaravelUploader\Http\Controllers\UploadController@upload',
                 'as' => 'file.upload',
             ]);
+            self::$app->make('router')->post('files/crop', [
+                'uses' => '\HelloPeterlee\LaravelUploader\Http\Controllers\UploadController@crop',
+                'as' => 'file.crop',
+            ]);
         }
     }
 }
