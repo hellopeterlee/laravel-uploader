@@ -5,7 +5,7 @@
     "dev": "gulp watch"
   },
   "devDependencies": {
-    "cropperjs": "^0.8.1",
+    "cropperjs": "^0.8.1",/Users/peirenlei/worspace/PHPProjects/peter_package/package/hellopeterlee/laravel-uploader/composer.json
     "laravel-elixir": "^6.0.0-9",
     "laravel-elixir-webpack-official": "^1.0.2",
     "sortablejs": "^1.4.2"

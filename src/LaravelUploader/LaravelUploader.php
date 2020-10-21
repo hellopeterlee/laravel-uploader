@@ -26,6 +26,10 @@ class LaravelUploader extends Facade
                 'uses' => '\HelloPeterlee\LaravelUploader\Http\Controllers\UploadController@crop',
                 'as' => 'file.crop',
             ]);
+            self::$app->make('router')->post('slim_image/upload', [
+                'uses' => '\HelloPeterlee\LaravelUploader\Http\Controllers\SlimImageUploadController@upload',
+                'as' => 'slim_image.upload',
+            ]);
         }
     }
 }

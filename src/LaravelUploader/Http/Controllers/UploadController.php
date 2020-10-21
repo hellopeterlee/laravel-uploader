@@ -11,17 +11,14 @@
 
 namespace HelloPeterlee\LaravelUploader\Http\Controllers;
 
+use HelloPeterlee\LaravelUploader\Services\FileUpload;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Support\Facades\Event;
-use HelloPeterlee\LaravelUploader\Events\FileDeleted;
-use HelloPeterlee\LaravelUploader\Events\FileUploaded;
-use HelloPeterlee\LaravelUploader\Events\FileUploading;
-use HelloPeterlee\LaravelUploader\Services\FileUpload;
+use Illuminate\Support\Arr;
 use Intervention\Image\ImageManager;
 
 /**
@@ -51,11 +48,11 @@ class UploadController extends BaseController
         $strategy = $request->get('strategy', 'default');
         $config = uploader_strategy($strategy);
 
-        $inputName = array_get($config, 'input_name', 'file');
-        $directory = array_get($config, 'directory', '{Y}/{m}/{d}');
-        $disk = array_get($config, 'disk', 'public');
-        $max_width = array_get($config, 'max_width', false);
-        $wantDataURL = array_get($config, 'want_dataurl', false);
+        $inputName = Arr::get($config, 'input_name', 'file');
+        $directory = Arr::get($config, 'directory', '{Y}/{m}/{d}');
+        $disk = Arr::get($config, 'disk', 'public');
+        $max_width = Arr::get($config, 'max_width', false);
+        $wantDataURL = Arr::get($config, 'want_dataurl', false);
         if (!$request->hasFile($inputName)) {
             return [
                 'code' => -1,
@@ -64,22 +61,14 @@ class UploadController extends BaseController
         }
         $file = $request->file($inputName);
 
-        Event::fire(new FileUploading($file));
-
         $filename = $this->getFilename($file, $config);
 
-        $result = app(FileUpload::class)->store($file, $disk, $filename, $directory, $max_width, $wantDataURL);
-
-        if (!is_null($modified = Event::fire(new FileUploaded($file, $result, $strategy, $config), [], true))) {
-            $result = $modified;
-        }
-
-        return $result;
+        return app(FileUpload::class)->store($file, $disk, $filename, $directory, $max_width, $wantDataURL);
     }
 
     public function getFilename(UploadedFile $file, $config)
     {
-        switch (array_get($config, 'filename_hash', 'default')) {
+        switch (Arr::get($config, 'filename_hash', 'default')) {
             case 'origional':
                 return $file->getClientOriginalName();
             case 'md5_file':
@@ -103,7 +92,7 @@ class UploadController extends BaseController
     {
         $result = ['result' => app(FileUpload::class)->delete($request->file)];
 
-        Event::fire(new FileDeleted($request->file));
+//        Event::fire(new FileDeleted($request->file));
 
         return $result;
     }

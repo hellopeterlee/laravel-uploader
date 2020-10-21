@@ -19,9 +19,12 @@ if (!function_exists('uploader_strategy')) {
      */
     function uploader_strategy($strategy)
     {
+        $default = config('uploader.strategies.default', []);
+        $userConfig = config('uploader.strategies.' . $strategy, []);
+        $config = array_merge_recursive_distinct($default, $userConfig);
         return array_merge([
             'filters' => [],
-        ], array_merge_recursive_distinct(config('uploader.strategies.default', []), config('uploader.strategies.'.$strategy, [])));
+        ], $config);
     }
 }
 
